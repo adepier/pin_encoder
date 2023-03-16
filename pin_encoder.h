@@ -4,6 +4,8 @@ struct  encoder_values
  int  tic_forward =0 ;
  int  tic_backward=0 ;   
  int count = 0;
+ float speed = 0;
+ float accel = 0;
 };
 
 class pin_encoder {
@@ -20,4 +22,8 @@ public:
 private:
     InterruptIn _interrupt; 
     encoder_values * _encoder ;  
+    //timer pour le calcul de la vitesse
+    Timer timer;
+     int  previous_tick_ms;
+      
 };

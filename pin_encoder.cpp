@@ -16,6 +16,10 @@ pin_encoder::pin_encoder(PinName pin , int num_compteur, encoder_values &encoder
              }
         
         _encoder   = &encoder; 
+        timer.start();
+          previous_tick_ms = std::chrono::duration_cast<std::chrono::microseconds>(timer.elapsed_time()).count();
+         _encoder->accel = 0;
+         _encoder->speed = 0;
     }
 /*principe:
 il y a 2 compteurs 1 et 2
@@ -55,8 +59,14 @@ void pin_encoder::increment()
       //si le compteur a été incrémenté, on remet tout a zéro
       if (_encoder->tic_forward==51 || _encoder->tic_backward==51)
       {
-            // met à jour l'angle du moteur
-          //_angle = count / _nbtic_per_deg;
+          //calcul la vitesse et l'accélération
+         int now = std::chrono::duration_cast<std::chrono::microseconds>(timer.elapsed_time()).count();
+         float new_speed =( 1.0f / (now - previous_tick_ms) ) * 100000.0f;
+         
+         _encoder->accel = 10000.0f *(new_speed - _encoder->speed)/(now - previous_tick_ms);
+         _encoder->speed = new_speed;
+           previous_tick_ms = now;
+          
           //RAZ des tic
           _encoder->tic_forward = 0;
           _encoder->tic_backward = 0;  
